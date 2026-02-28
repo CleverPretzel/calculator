@@ -23,15 +23,17 @@ let firstNum;
 let operator;
 let secondNum;
 
+let equalsPressed = false;
+
 const numOpButtons = [zeroButton, oneButton, twoButton, threeButton, fourButton, fiveButton, sixButton, sevenButton, eightButton, nineButton, addButton, subtractButton, multiplyButton, divideButton];
 
 clearButton.addEventListener('click', clearDisplay);
 
 numOpButtons.forEach(button => {
-  button.addEventListener('click', setVariable);
+  button.addEventListener('click', handleNumOp);
 })
 
-equalsButton.addEventListener('click', operate);
+equalsButton.addEventListener('click', handleEquals);
 
 function setVariable (event) {
   let numIsClicked = Number.isInteger(Number(event.target.textContent));
@@ -52,9 +54,16 @@ function setVariable (event) {
     }
 
   } else {
+    if (!firstNum) return;
     if (!operator) {
       operator = event.target.textContent;
     } else {
+      if (!secondNum) {
+        operator = event.target.textContent;
+        display.textContent = display.textContent.slice(0, -1);
+        updateDisplay(event.target.textContent);
+        return;
+      }
       operate();
       operator = event.target.textContent;
     }
@@ -120,6 +129,22 @@ function operate () {
   clearDisplay()
   updateDisplay(result);
   firstNum = result;
+}
+
+function handleNumOp (event) {
+  if (equalsPressed) {
+    display.textContent = '';
+    firstNum = null;
+    operator = null;
+    secondNum = null;
+  }
+  setVariable(event);
+  equalsPressed = false;
+}
+
+function handleEquals () {
+  operate();
+  equalsPressed = true;
 }
 
 function handleNonInteger (num) {
