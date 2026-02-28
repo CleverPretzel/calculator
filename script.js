@@ -8,6 +8,7 @@ const sixButton = document.querySelector('.six');
 const sevenButton = document.querySelector('.seven');
 const eightButton = document.querySelector('.eight');
 const nineButton = document.querySelector('.nine');
+const decimalButton = document.querySelector('.decimal');
 
 const addButton = document.querySelector('.add');
 const subtractButton = document.querySelector('.subtract');
@@ -24,8 +25,11 @@ let operator;
 let secondNum;
 
 let equalsPressed = false;
+let decimalPressed = false;
 
 const numOpButtons = [zeroButton, oneButton, twoButton, threeButton, fourButton, fiveButton, sixButton, sevenButton, eightButton, nineButton, addButton, subtractButton, multiplyButton, divideButton];
+
+decimalButton.addEventListener('click', handleDecimal);
 
 clearButton.addEventListener('click', clearDisplay);
 
@@ -57,6 +61,7 @@ function setVariable (event) {
     if (!firstNum) return;
     if (!operator) {
       operator = event.target.textContent;
+      decimalPressed = false;
     } else {
       if (!secondNum) {
         operator = event.target.textContent;
@@ -104,6 +109,7 @@ function operate () {
     return;
   }
 
+  console.log(firstNum, Number(firstNum));
   firstNum = Number(firstNum);
   secondNum = Number(secondNum);
   let result;
@@ -129,6 +135,7 @@ function operate () {
   clearDisplay()
   updateDisplay(result);
   firstNum = result;
+  decimalPressed = false;
 }
 
 function handleNumOp (event) {
@@ -151,4 +158,19 @@ function handleNonInteger (num) {
   if (!Number.isInteger(num)) {
     return Math.round(num * 100) / 100;
   }
+}
+
+function handleDecimal () {
+  if (!firstNum || 
+    decimalPressed ||
+    (operator && !secondNum)
+  ) return;
+
+  if (!operator) {
+    firstNum += '.';
+  } else {
+    secondNum += '.';
+  }
+  updateDisplay('.');
+  decimalPressed = true;
 }
