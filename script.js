@@ -17,6 +17,9 @@ const divideButton = document.querySelector('.divide');
 const equalsButton = document.querySelector('.equals');
 
 const clearButton = document.querySelector('.clear');
+const deleteButton = document.querySelector('.delete');
+
+const htmlBody = document.querySelector('body');
 
 let display = document.querySelector('.display');
 
@@ -33,6 +36,8 @@ decimalButton.addEventListener('click', handleDecimal);
 
 clearButton.addEventListener('click', clearDisplay);
 
+deleteButton.addEventListener('click', deleteLast);
+
 numOpButtons.forEach(button => {
   button.addEventListener('click', handleNumOp);
 })
@@ -40,41 +45,42 @@ numOpButtons.forEach(button => {
 equalsButton.addEventListener('click', handleEquals);
 
 function setVariable (event) {
-  let numIsClicked = Number.isInteger(Number(event.target.textContent));
+  let digit = event.key || event.target.textContent;
+  let numIsClicked = Number.isInteger(Number(digit));
 
   if (numIsClicked) {
     if (!operator) {
       if (!firstNum) {
-        firstNum = event.target.textContent;
+        firstNum = digit;
       } else {
-        firstNum += event.target.textContent;
+        firstNum += digit;
       }
     } else {
       if (!secondNum) {
-        secondNum = event.target.textContent;
+        secondNum = digit;
       } else {
-        secondNum += event.target.textContent;
+        secondNum += digit;
       }
     }
 
   } else {
     if (!firstNum) return;
     if (!operator) {
-      operator = event.target.textContent;
+      operator = digit;
       decimalPressed = false;
     } else {
       if (!secondNum) {
-        operator = event.target.textContent;
+        operator = digit;
         display.textContent = display.textContent.slice(0, -1);
-        updateDisplay(event.target.textContent);
+        updateDisplay(digit);
         return;
       }
       operate();
-      operator = event.target.textContent;
+      operator = digit;
     }
   }
 
-  updateDisplay(event.target.textContent);
+  updateDisplay(digit);
 }
 
 function clearDisplay () {
@@ -82,6 +88,24 @@ function clearDisplay () {
   firstNum = null;
   operator = null;
   secondNum = null;
+}
+
+function deleteLast () {
+  if (firstNum && !operator) {
+    let lastChar = firstNum.slice(-1);
+    if (lastChar === '.') decimalPressed = false;
+
+    firstNum = firstNum.slice(0, -1);
+  } else if (operator && !secondNum) {
+    operator = null;
+  } else if (secondNum) {
+    let lastChar = secondNum.slice(-1);
+    if (lastChar === '.') decimalPressed = false;
+
+    secondNum = secondNum.slice(0, -1);
+  }
+
+  display.textContent = display.textContent.slice(0, -1);
 }
 
 function updateDisplay (text) {
@@ -109,7 +133,6 @@ function operate () {
     return;
   }
 
-  console.log(firstNum, Number(firstNum));
   firstNum = Number(firstNum);
   secondNum = Number(secondNum);
   let result;
@@ -174,3 +197,12 @@ function handleDecimal () {
   updateDisplay('.');
   decimalPressed = true;
 }
+
+htmlBody.addEventListener('keydown', e => {
+  const numsAndOps = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '/', '*', '-', '+'];
+
+  if (e.key === '.') handleDecimal();
+  if (e.key === 'Backspace') deleteLast();
+  if (e.key === '=' || e.key === 'Enter') handleEquals();
+  if (numsAndOps.includes(e.key)) handleNumOp(e);
+})
